@@ -88,17 +88,21 @@
 ** Elixir Support
    # TODO Properly configure alchemist
 #+BEGIN_SRC emacs-lisp
+(require 'elixir-mode)
 ;; Create a buffer-local hook to run elixir-format on save, only when we enable elixir-mode.
 (add-hook 'elixir-mode-hook
-          (lambda () (add-hook 'before-save-hook 'elixir-format nil t)))
-
-;; Elixir lang support
-(unless (package-installed-p 'alchemist)
-  (package-install 'alchemist))
-#+END_SRC
+  (lambda () (add-hook 'before-save-hook 'elixir-fo#+END_SRC
 
 * Utils
 #+BEGIN_SRC emacs-lisp
 (global-auto-revert-mode t) ; Auto reload files
+
+(unless (package-installed-p 'exec-path-from-shell)
+  (package-install 'exec-path-from-shell))
+
+(when (memq window-system '(mac ns x)) ; Syncs $MANPATH, $PATH and exec-path with shell config 
+  (exec-path-from-shell-initialize))   ; (does not work on windows)
+
 #+END_SRC
+
 
