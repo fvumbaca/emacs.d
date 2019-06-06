@@ -1,8 +1,8 @@
-#+TITLE: MyMacs
+#+TITLE: My Emacs
 #+AUTHOR: Frank Vumbaca
 
 * Package Management
-Sets pakage repositories
+  Sets pakage repositories
 
 #+BEGIN_SRC emacs-lisp
 (require 'package)
@@ -37,7 +37,7 @@ Sets pakage repositories
 #+END_SRC
 
 * Evil Mode
-Because this is who I am.
+  Because this is who I am.
 #+BEGIN_SRC emacs-lisp
 (require 'evil)
 (evil-mode t)
@@ -51,7 +51,7 @@ Because this is who I am.
 #+END_SRC
 
 * All the Good Looks
-Theme stuff.
+  Theme stuff.
 #+BEGIN_SRC emacs-lisp
 (load-theme `spacemacs-dark)
 
@@ -63,7 +63,7 @@ Theme stuff.
 #+END_SRC
 
 * Projectile Configuration
-Project management.
+  Project management.
 #+BEGIN_SRC emacs-lisp
 (projectile-mode +1)
 (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
@@ -71,7 +71,7 @@ Project management.
 #+END_SRC
 
 * Ido Configuration
-Fuzzy search and auto complete.
+  Fuzzy search and auto complete.
 #+BEGIN_SRC emacs-lisp
 (setq ido-enable-flex-matching t)
 (setq ido-everywhere t)
@@ -86,7 +86,7 @@ Fuzzy search and auto complete.
 #+END_SRC
 
 ** Elixir Support
-# TODO Properly configure alchemist
+   # TODO Properly configure alchemist
 #+BEGIN_SRC emacs-lisp
 ;; Create a buffer-local hook to run elixir-format on save, only when we enable elixir-mode.
 (add-hook 'elixir-mode-hook

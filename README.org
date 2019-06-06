@@ -1,4 +1,7 @@
-* MyMacs
+#+TITLE: My Emacs
+#+AUTHOR: Frank Vumbaca
+
+* My Emacs
 
 This is my emacs config.
 

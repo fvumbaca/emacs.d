@@ -3,6 +3,6 @@
 
 # Whitelist specific things
 !init.el
-!mymacs.org
+!config.org
 !.gitignore
 !README.org
