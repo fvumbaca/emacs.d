@@ -1,0 +1,99 @@
+#+TITLE: MyMacs
+#+AUTHOR: Frank Vumbaca
+
+* Package Management
+Sets pakage repositories
+
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+
+; List the packages you want
+(setq package-list '(evil
+		     evil-leader
+		     spacemacs-theme
+		     projectile
+		     powerline
+		     elixir-mode
+		     ))
+
+; Add Melpa as the default Emacs Package repository
+; only contains a very limited number of packages
+(add-to-list 'package-archives
+             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(add-to-list 'package-archives
+                          '("melpa" . "https://melpa.milkbox.net/packages/") t)
+
+; Activate all the packages (in particular autoloads)
+(package-initialize)
+
+; Update your local package index
+(unless package-archive-contents
+    (package-refresh-contents))
+
+; Install all missing packages
+(dolist (package package-list)
+    (unless (package-installed-p package)
+          (package-install package)))
+#+END_SRC
+
+* Evil Mode
+Because this is who I am.
+#+BEGIN_SRC emacs-lisp
+(require 'evil)
+(evil-mode t)
+
+(require 'evil-leader)
+(global-evil-leader-mode)
+(evil-leader/set-leader ",")
+(evil-leader/set-key
+  "b" 'switch-to-buffer
+  "w" 'save-buffer)
+#+END_SRC
+
+* All the Good Looks
+Theme stuff.
+#+BEGIN_SRC emacs-lisp
+(load-theme `spacemacs-dark)
+
+(menu-bar-mode -1)
+(toggle-scroll-bar -1)
+(tool-bar-mode -1)
+
+(powerline-default-theme)
+#+END_SRC
+
+* Projectile Configuration
+Project management.
+#+BEGIN_SRC emacs-lisp
+(projectile-mode +1)
+(define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+#+END_SRC
+
+* Ido Configuration
+Fuzzy search and auto complete.
+#+BEGIN_SRC emacs-lisp
+(setq ido-enable-flex-matching t)
+(setq ido-everywhere t)
+(ido-mode 1)
+#+END_SRC
+
+* Language Stuff
+** General Stuff
+#+BEGIN_SRC emacs-lisp
+;; Dont use tabs for indenting
+(setq-default indent-tabs-mode nil)
+#+END_SRC
+
+** Elixir Support
+# TODO Properly configure alchemist
+#+BEGIN_SRC emacs-lisp
+;; Create a buffer-local hook to run elixir-format on save, only when we enable elixir-mode.
+(add-hook 'elixir-mode-hook
+          (lambda () (add-hook 'before-save-hook 'elixir-format nil t)))
+
+;; Elixir lang support
+(unless (package-installed-p 'alchemist)
+  (package-install 'alchemist))
+#+END_SRC
+

@@ -1,0 +1,8 @@
+* MyMacs
+
+This is my emacs config.
+
+To install, clone this repo to your `.emacs.d` directory:
+```sh
+$ git clone git@github.com:fvumbaca/MyMacs.git ~/.emacs.d
+```

@@ -1,0 +1,8 @@
+# Ignore Everything First...
+*
+
+# Whitelist specific things
+!init.el
+!mymacs.org
+!.gitignore
+!README.org
