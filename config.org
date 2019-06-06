@@ -97,3 +97,8 @@
   (package-install 'alchemist))
 #+END_SRC
 
+* Utils
+#+BEGIN_SRC emacs-lisp
+(global-auto-revert-mode t) ; Auto reload files
+#+END_SRC
+
