@@ -60,16 +60,20 @@
 (global-set-key "\C-ca" 'org-agenda)
 #+END_SRC
 
-* All the Good Looks
+* Looks
+
+** Theme
   Theme stuff.
 #+BEGIN_SRC emacs-lisp
 (load-theme `spacemacs-dark)
+(powerline-default-theme)
+#+END_SRC
 
+** Emacs GUI settings
+#+BEGIN_SRC emacs-lisp
 (menu-bar-mode -1)
 (toggle-scroll-bar -1)
 (tool-bar-mode -1)
-
-(powerline-default-theme)
 #+END_SRC
 
 * Projectile Configuration
@@ -78,14 +82,10 @@
 (projectile-mode +1)
 (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-#+END_SRC
 
-* Ido Configuration
-  Fuzzy search and auto complete.
-#+BEGIN_SRC emacs-lisp
-(setq ido-enable-flex-matching t)
-(setq ido-everywhere t)
-(ido-mode 1)
+(projectile-register-project-type 'makefile '("Makefile")
+                  :compile "make build"
+                  :test "make test")
 #+END_SRC
 
 * Language Stuff
@@ -93,6 +93,16 @@
 #+BEGIN_SRC emacs-lisp
 ;; Dont use tabs for indenting
 (setq-default indent-tabs-mode nil)
+#+END_SRC
+
+** Lisp
+
+#+BEGIN_SRC emacs-lisp
+(unless (package-installed-p 'slime)
+  (package-install 'slime))
+(require 'slime)
+(setq inferior-lisp-program "/usr/local/bin/clisp")
+(setq slime-contribs '(slime-fancy))
 #+END_SRC
 
 ** Elixir Support
@@ -121,7 +131,21 @@
   (exec-path-from-shell-initialize))   ; (does not work on windows)
 
 (desktop-save-mode 1)
+
+(unless (package-installed-p 'emojify)
+  (package-install 'emojify))
+(require `emojify)
+(global-emojify-mode t)
+
 #+END_SRC
+
+** Ido Configuration
+   Fuzzy search and auto complete.
+ #+BEGIN_SRC emacs-lisp
+ (setq ido-enable-flex-matching t)
+ (setq ido-everywhere t)
+ (ido-mode 1)
+ #+END_SRC
 
 ** Window Management
 #+BEGIN_SRC emacs-lisp
@@ -131,3 +155,4 @@
 (require `ace-window)
 (global-set-key (kbd "M-o") 'ace-window)
 #+END_SRC
+

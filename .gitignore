@@ -6,3 +6,9 @@
 !config.org
 !.gitignore
 !README.org
+
+# Emacs files
+*~
+\#*\#
+.\#*
+.projectile
