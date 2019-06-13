@@ -39,6 +39,23 @@
 * Evil Mode
   Because this is who I am.
 #+BEGIN_SRC emacs-lisp
+
+(defun create-window-and-move (dir)
+"Create a new window in direction and focus it"
+  (interactive)
+  (cond 
+    ((eq dir "left") 
+      (split-window-horizontally)
+      (windmove-left))
+    ((eq dir "right")
+      (split-window-horizontally))
+    ((eq dir "up")
+      (split-window-vertically))
+    ((eq dir "down")
+      (split-window-vertically)
+      (windmove-down))))
+(defun wincreate-and-move-down () (create-window-and-move "down"))
+
 (require 'evil)
 (evil-mode t)
 (with-eval-after-load 'evil-maps
@@ -46,9 +63,22 @@
 
 (require 'evil-leader)
 (global-evil-leader-mode)
-(evil-leader/set-leader ",")
+(evil-leader/set-leader "SPC")
 (evil-leader/set-key
   "b" 'switch-to-buffer
+
+  "q" 'delete-window
+
+  "j" 'windmove-down
+  "k" 'windmove-up
+  "h" 'windmove-left
+  "l" 'windmove-right
+
+  "J" (lambda () (interactive) (split-window-vertically) (windmove-down))
+  "K" (lambda () (interactive) (split-window-vertically))
+  "H" (lambda () (interactive) (split-window-horizontally))
+  "L" (lambda () (interactive) (split-window-horizontally) (windmove-right))
+
   "w" 'save-buffer)
 #+END_SRC
 
