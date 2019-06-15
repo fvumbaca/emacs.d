@@ -140,9 +140,13 @@
 ** Ido Configuration
    Fuzzy search and auto complete.
  #+BEGIN_SRC emacs-lisp
- (setq ido-enable-flex-matching t)
- (setq ido-everywhere t)
- (ido-mode 1)
+(setq ido-enable-flex-matching t)
+(setq ido-everywhere t)
+
+(unless (package-installed-p 'ido-completing-read+)
+  (package-install 'ido-completing-read+))
+  
+(ido-mode 1)
  #+END_SRC
 
 ** Window Management
@@ -163,11 +167,18 @@
 (unless (package-installed-p 'flycheck)
   (package-install 'flycheck))
 (require `flycheck)
+
 (global-flycheck-mode)
+
+(unless (package-installed-p 'rainbow-delimiters)
+  (package-install 'rainbow-delimiters))
+
+(unless (package-installed-p 'paredit)
+  (package-install 'paredit))
 
 #+END_SRC
 
-** Lisp
+** Common Lisp
 
 #+BEGIN_SRC emacs-lisp
 (unless (package-installed-p 'slime)
@@ -175,6 +186,27 @@
 (require 'slime)
 (setq inferior-lisp-program "/usr/local/bin/clisp")
 (setq slime-contribs '(slime-fancy))
+#+END_SRC
+
+** Clojure
+
+#+BEGIN_SRC emacs-lisp
+; Base mode
+(unless (package-installed-p 'clojure-mode)
+  (package-install 'clojure-mode))
+; Better clojure syntax highlighting
+(unless (package-installed-p 'clojure-mode-extra-font-locking)
+  (package-install 'clojure-mode))
+  
+; Repl
+(unless (package-installed-p 'cider)
+  (package-install 'cider))
+(require 'cider)
+
+; Enable helpful modes when editing clojure
+(add-hook 'clojure-mode-hook #'rainbow-delimiters-mode)
+(add-hook 'clojure-mode-hook #'enable-paredit-mode)
+
 #+END_SRC
 
 ** Elixir Support
@@ -189,4 +221,5 @@
   (package-install 'alchemist))
 (require 'alchemist)
 #+END_SRC
+
 
