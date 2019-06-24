@@ -62,8 +62,12 @@
   "K" (lambda () (interactive) (split-window-vertically))
   "H" (lambda () (interactive) (split-window-horizontally))
   "L" (lambda () (interactive) (split-window-horizontally) (windmove-right))
+  
+  "n" (lambda () (interactive) (find-file "~/notes/index.org"))
+  
+  "," (lambda () (interactive) (find-file "~/.emacs.d/config.org"))
 
-  "w" 'save-buffer)
+  "W" 'save-buffer)
 #+END_SRC
 
 * Org Mode
