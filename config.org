@@ -126,6 +126,8 @@
                   :test "make test")
 #+END_SRC
 
+TODO: [[https://www.emacswiki.org/emacs/NeoTree#toc8][NeoTree setup with projectile and Evil]]
+
 * Utils
 
 ** General
