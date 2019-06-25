@@ -5,8 +5,14 @@
   Sets pakage repositories
 
 #+BEGIN_SRC emacs-lisp
-(require 'package)
 
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+
+(eval-when-compile
+  (require 'use-package))
+
+(require 'package)
 ; List the packages you want
 (setq package-list '(evil
 		     evil-leader
@@ -48,6 +54,7 @@
 (global-evil-leader-mode)
 (evil-leader/set-leader "SPC")
 (evil-leader/set-key
+  "f" `find-file
   "b" 'switch-to-buffer
   "g" 'magit-status
 
@@ -63,8 +70,11 @@
   "H" (lambda () (interactive) (split-window-horizontally))
   "L" (lambda () (interactive) (split-window-horizontally) (windmove-right))
   
-  "n" (lambda () (interactive) (find-file "~/notes/index.org"))
+  "p" `projectile-command-map
   
+  "a" `org-agenda
+  
+  "n" (lambda () (interactive) (find-file "~/notes/index.org"))
   "," (lambda () (interactive) (find-file "~/.emacs.d/config.org"))
 
   "W" 'save-buffer)
@@ -77,10 +87,31 @@
 (global-set-key "\C-cl" 'org-store-link)
 (global-set-key "\C-ca" 'org-agenda)
 
+(setq org-log-done 'time) ; Mark done items with completion time
+
 (unless (package-installed-p 'org-bullets)
   (package-install 'org-bullets))
 (require 'org-bullets)
 (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+
+(use-package evil-org
+  :ensure t
+  :after org
+  :config
+  (add-hook 'org-mode-hook 'evil-org-mode)
+  (add-hook 'evil-org-mode-hook
+            (lambda ()
+              (evil-org-set-key-theme)))
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
+
+#+END_SRC
+
+Add files to be read by org-agenda
+
+#+BEGIN_SRC emacs-lisp
+
+(setq org-agenda-files (list "~/notes/agenda.org"))
 
 #+END_SRC
 
@@ -129,7 +160,6 @@
 TODO: [[https://www.emacswiki.org/emacs/NeoTree#toc8][NeoTree setup with projectile and Evil]]
 
 * Utils
-
 ** General
 #+BEGIN_SRC emacs-lisp
 (global-auto-revert-mode t) ; Auto reload files
