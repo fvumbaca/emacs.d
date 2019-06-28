@@ -140,7 +140,6 @@ Custom functions to create merge requests.
         (substring res 0 -1)
       res)))
      
-
 (defun omm-get-local-branch ()
   "Gets the name of the current branch."
   (omm-git-exec "rev-parse --abbrev-ref HEAD"))
@@ -152,7 +151,7 @@ Custom functions to create merge requests.
 
 (defun omm-parse-repo-path (remote)
   "Given a remote ssh host, parse the uri path to the project."
-  (if (string-match "git@[^\s]+\:[\d]*\\([^\s]+\\)\\.git$" remote)
+  (if (string-match "git@[^\s]+\:[0-9]*\/\\([^\s]+\\)\\.git$" remote)
       (match-string 1 remote)
     nil))
 
@@ -169,14 +168,18 @@ Custom functions to create merge requests.
   (let ((merge (omm-git-exec (concat "config --get branch." branch ".merge")))
         remote-branch)
     (string-match "^refs/heads/\\([^\s]+\\)$" merge)
-    (substring (match-string 1 merge) 0 -1)
-    )
-  )
+    (substring (match-string 1 merge) 0 -1)))
 
 (defun omm-create-github-new-mr-url
     (host branch)
   "Generates a url that will open gitlab ui to make a PR for given branch."
   (concat "https://" host "/pull/new/" branch))
+
+(defun omm-create-gitlab-new-mr-url
+    (host branch)
+  "Generates a url that will open gitlab ui to make a PR for given branch."
+  (concat "https://" host "/merge_requests/new?merge_request%5Bsource_branch%5D=" (url-hexify-string branch)))
+
 
 (defun omm-create-mr-for-branch
     ()
@@ -186,9 +189,8 @@ Custom functions to create merge requests.
         (branch (omm-get-remote-branch (magit-get-current-branch))))
     (cond
       ((string-match "github" host) (browse-url (omm-create-github-new-mr-url host branch)))
-      (t (message "IDK how to handle" host "!!"))
-    )
-))
+      ((string-match "gitlab" host) (browse-url (omm-create-gitlab-new-mr-url host branch)))
+      (t (message "IDK how to open an MR on %s. Edit the config to add a handler for this service!" host)))))
 
 #+END_SRC
 *** Add to Magit Transient
