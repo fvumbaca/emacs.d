@@ -129,6 +129,73 @@ Add files to be read by org-agenda
 (require 'evil-magit)
 #+END_SRC
 
+** Open-merge-me plugin prototype
+*** Source Code
+Custom functions to create merge requests.
+#+BEGIN_SRC emacs-lisp
+(defun omm-git-exec (args)
+  "Execute arbitrary git commands and remove trailing new lines."
+  (let ((res (shell-command-to-string (concat "git " args))))
+    (if (string= (concat (substring res 0 -1) " ") res)
+        (substring res 0 -1)
+      res)))
+     
+
+(defun omm-get-local-branch ()
+  "Gets the name of the current branch."
+  (omm-git-exec "rev-parse --abbrev-ref HEAD"))
+  
+(defun omm-parse-repo-host (remote)
+  "Given a remote ssh host, parse the website url."
+  (string-match "@\\(\[^\s]+\\):\d*" remote)
+  (match-string 1 remote))
+
+(defun omm-parse-repo-path (remote)
+  "Given a remote ssh host, parse the uri path to the project."
+  (if (string-match "git@[^\s]+\:[\d]*\\([^\s]+\\)\\.git$" remote)
+      (match-string 1 remote)
+    nil))
+
+(defun omm-get-repo-link ()
+  "Build the link to the hosting service's project page"
+  (let* ((remote (omm-git-exec "config --get remote.origin.url"))
+         (host (omm-parse-repo-host remote))
+         (path (omm-parse-repo-path remote)))
+    (concat host "/" path)))
+
+(defun omm-get-remote-branch
+    (branch)
+  "Return the current set remote branch for project in PROJECT-PATH."
+  (let ((merge (omm-git-exec (concat "config --get branch." branch ".merge")))
+        remote-branch)
+    (string-match "^refs/heads/\\([^\s]+\\)$" merge)
+    (substring (match-string 1 merge) 0 -1)
+    )
+  )
+
+(defun omm-create-github-new-mr-url
+    (host branch)
+  "Generates a url that will open gitlab ui to make a PR for given branch."
+  (concat "https://" host "/pull/new/" branch))
+
+(defun omm-create-mr-for-branch
+    ()
+  "Open the create mr page for current remote branch."
+  (interactive)
+  (let ((host (omm-get-repo-link))
+        (branch (omm-get-remote-branch (magit-get-current-branch))))
+    (cond
+      ((string-match "github" host) (browse-url (omm-create-github-new-mr-url host branch)))
+      (t (message "IDK how to handle" host "!!"))
+    )
+))
+
+#+END_SRC
+*** Add to Magit Transient
+ #+BEGIN_SRC emacs-lisp
+(transient-append-suffix `magit-branch "S" '("M" "Create MR" omm-create-mr-for-branch))
+ #+END_SRC
+
 * Looks
 
 ** Theme
