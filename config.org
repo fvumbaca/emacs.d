@@ -3,105 +3,99 @@
 
 * Package Management
   Sets pakage repositories
-
 #+BEGIN_SRC emacs-lisp
-
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
-
-(eval-when-compile
-  (require 'use-package))
-
 (require 'package)
-; List the packages you want
-(setq package-list '(evil
-		     evil-leader
-		     spacemacs-theme
-		     projectile
-		     powerline
-		     elixir-mode
-		     ))
-
-; Add Melpa as the default Emacs Package repository
-; only contains a very limited number of packages
 (add-to-list 'package-archives
              '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 (add-to-list 'package-archives
-                          '("melpa" . "https://melpa.milkbox.net/packages/") t)
-
-; Activate all the packages (in particular autoloads)
+             '("melpa" . "https://melpa.milkbox.net/packages/") t)
 (package-initialize)
 
-; Update your local package index
-(unless package-archive-contents
-    (package-refresh-contents))
+#+END_SRC
 
-; Install all missing packages
-(dolist (package package-list)
-    (unless (package-installed-p package)
-          (package-install package)))
+Configure use-package
+#+BEGIN_SRC emacs-lisp
+
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(require 'use-package)
+
+; Default all packages to always be installed
+;(setq use-package-always-ensure t)
+
 #+END_SRC
 
 * Evil Mode
-  Because this is who I am.
+  The dark side is the best side :smile:.
 #+BEGIN_SRC emacs-lisp
-(require 'evil)
-(evil-mode t)
-(with-eval-after-load 'evil-maps
-  (define-key evil-motion-state-map (kbd "RET") nil)) ; Disable this here to make link nav easier
+(use-package evil
+  :ensure t
+  :demand t
+  :defer .1
+  :after (evil-leader)
+  :init
+  (setq evil-default-cursor t)
+  :config
+  (evil-mode t)
+  (with-eval-after-load 'evil-maps)
+  ; Disable evil mode RET here to make org links easier to nav
+  (define-key evil-motion-state-map (kbd "RET") nil)
+  (message "Loading evil-mode...done"))
 
-(require 'evil-leader)
-(global-evil-leader-mode)
-(evil-leader/set-leader "SPC")
-(evil-leader/set-key
-  "f" `find-file
-  "b" 'switch-to-buffer
-  "g" 'magit-status
+(use-package evil-leader
+  :init
+  (global-evil-leader-mode)
+  :ensure t
+  :config
+  (evil-leader/set-leader "SPC")
+  (evil-leader/set-key
+    "f" `find-file
+    "b" 'switch-to-buffer
+    "g" 'magit-status
+    "q" 'delete-window
+    "j" 'windmove-down
+    "k" 'windmove-up
+    "h" 'windmove-left
+    "l" 'windmove-right
+    "J" (lambda () (interactive) (split-window-vertically) (windmove-down))
+    "K" (lambda () (interactive) (split-window-vertically))
+    "H" (lambda () (interactive) (split-window-horizontally))
+    "L" (lambda () (interactive) (split-window-horizontally) (windmove-right))
+    "p" `projectile-command-map
+    "a" `org-agenda
+    "n" (lambda () (interactive) (find-file "~/notes/index.org"))
+    "," (lambda () (interactive) (find-file "~/.emacs.d/config.org"))
+    "W" 'save-buffer)
+  (evil-leader/set-key-for-mode 'org-mode
+    "c" 'org-toggle-checkbox))
 
-  "q" 'delete-window
+(use-package evil-magit
+  :demand t
+  :after (magit evil))
 
-  "j" 'windmove-down
-  "k" 'windmove-up
-  "h" 'windmove-left
-  "l" 'windmove-right
-
-  "J" (lambda () (interactive) (split-window-vertically) (windmove-down))
-  "K" (lambda () (interactive) (split-window-vertically))
-  "H" (lambda () (interactive) (split-window-horizontally))
-  "L" (lambda () (interactive) (split-window-horizontally) (windmove-right))
-  
-  "p" `projectile-command-map
-  
-  "a" `org-agenda
-  
-  "n" (lambda () (interactive) (find-file "~/notes/index.org"))
-  "," (lambda () (interactive) (find-file "~/.emacs.d/config.org"))
-
-  "W" 'save-buffer)
 #+END_SRC
 
 * Org Mode
   Org mode settings.
 #+BEGIN_SRC emacs-lisp
+
 (setq org-return-follows-link t)
 (global-set-key "\C-cl" 'org-store-link)
 (global-set-key "\C-ca" 'org-agenda)
 
 (setq org-log-done 'time) ; Mark done items with completion time
 
-(unless (package-installed-p 'org-bullets)
-  (package-install 'org-bullets))
-(require 'org-bullets)
-(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+(use-package org-bullets
+  :ensure t
+  :hook (org-mode . (lambda () (org-bullets-mode 1))))
 
 (use-package evil-org
   :ensure t
-  :after org
+  :hook
+  (org-mode . evil-org-mode)
+  (evil-org-mode . (lambda () (evil-org-set-key-theme)))
   :config
-  (add-hook 'org-mode-hook 'evil-org-mode)
-  (add-hook 'evil-org-mode-hook
-            (lambda ()
-              (evil-org-set-key-theme)))
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
 
@@ -116,19 +110,6 @@ Add files to be read by org-agenda
 #+END_SRC
 
 * maGit
-
-#+BEGIN_SRC emacs-lisp
-
-(unless (package-installed-p 'magit)
-  (package-install 'magit))
-(require 'magit)
-(global-set-key (kbd "C-x g") 'magit-status)
-
-(unless (package-installed-p 'evil-magit)
-  (package-install 'evil-magit))
-(require 'evil-magit)
-#+END_SRC
-
 ** Open-merge-me plugin prototype
 *** Source Code
 Custom functions to create merge requests.
@@ -193,18 +174,32 @@ Custom functions to create merge requests.
       (t (message "IDK how to open an MR on %s. Edit the config to add a handler for this service!" host)))))
 
 #+END_SRC
-*** Add to Magit Transient
- #+BEGIN_SRC emacs-lisp
-(transient-append-suffix `magit-branch "S" '("M" "Create MR" omm-create-mr-for-branch))
- #+END_SRC
+
+** Install Magit
+#+BEGIN_SRC emacs-lisp
+(use-package magit
+  :commands magit-status
+  :ensure t
+  :config
+  (global-set-key (kbd "C-x g") 'magit-status)
+  (transient-append-suffix `magit-branch "S" '("M" "Create MR" omm-create-mr-for-branch)))
+
+
+#+END_SRC
 
 * Looks
-
 ** Theme
   Theme stuff.
 #+BEGIN_SRC emacs-lisp
-(load-theme `spacemacs-dark)
-(powerline-default-theme)
+(use-package spacemacs-theme
+  :defer t
+  :init
+  (load-theme 'spacemacs-dark t))
+(use-package powerline
+  :ensure t
+  :demand t
+  :config
+  (powerline-default-theme))
 #+END_SRC
 
 ** Emacs GUI settings
@@ -217,38 +212,51 @@ Custom functions to create merge requests.
 * Projectile Configuration
   Project management.
 #+BEGIN_SRC emacs-lisp
-(projectile-mode +1)
-(define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+(use-package projectile
+  :demand t
+  :defer .5
+  :config
+  (projectile-mode +1)
+  (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 
-(projectile-register-project-type 'makefile '("Makefile")
-                  :compile "make build"
-                  :test "make test")
+  (projectile-register-project-type 'makefile '("Makefile")
+    :compile "make build"
+    :test "make test"))
 #+END_SRC
 
 TODO: [[https://www.emacswiki.org/emacs/NeoTree#toc8][NeoTree setup with projectile and Evil]]
+OR TreeMacs...
 
 * Utils
 ** General
+   Fix shell commands
 #+BEGIN_SRC emacs-lisp
 (global-auto-revert-mode t) ; Auto reload files
 
-(unless (package-installed-p 'exec-path-from-shell)
-  (package-install 'exec-path-from-shell))
-
-(when (memq window-system '(mac ns x)) ; Syncs $MANPATH, $PATH and exec-path with shell config 
-  (exec-path-from-shell-initialize))   ; (does not work on windows)
-
-(desktop-save-mode 1)
-
-(unless (package-installed-p 'emojify)
-  (package-install 'emojify))
-(require `emojify)
-(global-emojify-mode t)
-
+(use-package exec-path-from-shell
+  :demand t
+  :config
+  (when (memq window-system '(mac ns x)) ; Syncs $MANPATH, $PATH and exec-path with shell config 
+    (exec-path-from-shell-initialize)))  ; (does not work on windows)
 #+END_SRC
-Also, emacs does this annoying thing where it will create a bunch of 
-temporary files like backups, swaps, and autosaves. Lets tame this behavior a little...
+
+  Better emoji support.
+#+BEGIN_SRC emacs-lisp
+(use-package emojify
+  :demand t
+  :defer 0.3
+  :config
+  (global-emojify-mode t))
+#+END_SRC
+
+  Save emacs state on close.
+#+BEGIN_SRC emacs-lisp
+(desktop-save-mode 1)
+#+END_SRC
+
+  Also, emacs does this annoying thing where it will create a bunch of 
+  temporary files like backups, swaps, and autosaves. Lets tame this behavior a little...
 #+BEGIN_SRC emacs-lisp
 (setq make-backup-files nil) ; stop creating backup~ files
 (setq auto-save-default nil) ; stop creating #autosave# files
@@ -261,20 +269,16 @@ temporary files like backups, swaps, and autosaves. Lets tame this behavior a li
  #+BEGIN_SRC emacs-lisp
 (setq ido-enable-flex-matching t)
 (setq ido-everywhere t)
-
-(unless (package-installed-p 'ido-completing-read+)
-  (package-install 'ido-completing-read+))
-  
+(use-package ido-completing-read+ :demand t :defer 0.7)
 (ido-mode 1)
  #+END_SRC
 
 ** Window Management
 #+BEGIN_SRC emacs-lisp
-(unless (package-installed-p 'ace-window)
-  (package-install 'ace-window))
-
-(require `ace-window)
-(global-set-key (kbd "M-o") 'ace-window)
+(use-package ace-window
+  :commands ace-window
+  :config
+  (global-set-key (kbd "M-o") 'ace-window))
 #+END_SRC
 
 * Language Stuff
@@ -283,65 +287,63 @@ temporary files like backups, swaps, and autosaves. Lets tame this behavior a li
 ;; Dont use tabs for indenting
 (setq-default indent-tabs-mode nil)
 
-(unless (package-installed-p 'flycheck)
-  (package-install 'flycheck))
-(require `flycheck)
+(use-package flycheck
+  :demand t
+  :config
+  (global-flycheck-mode))
 
-(global-flycheck-mode)
-
-(unless (package-installed-p 'rainbow-delimiters)
-  (package-install 'rainbow-delimiters))
-
-(unless (package-installed-p 'paredit)
-  (package-install 'paredit))
-(unless (package-installed-p 'evil-paredit)
-  (package-install 'evil-paredit))
-
+(use-package rainbow-delimiters :ensure t :demand t)
+(use-package paredit :ensure t :demand t)
+(use-package evil-paredit :ensure t :demand t)
 #+END_SRC
 
 ** Common Lisp
-
 #+BEGIN_SRC emacs-lisp
-(unless (package-installed-p 'slime)
-  (package-install 'slime))
-(require 'slime)
-(setq inferior-lisp-program "/usr/local/bin/clisp")
-(setq slime-contribs '(slime-fancy))
+(use-package slime
+  :commands slime-mode
+  :init
+  (setq inferior-lisp-program "/usr/local/bin/clisp")
+  (setq slime-contribs '(slime-fancy)))
 #+END_SRC
 
 ** Clojure
 
 #+BEGIN_SRC emacs-lisp
 ; Base mode
-(unless (package-installed-p 'clojure-mode)
-  (package-install 'clojure-mode))
-; Better clojure syntax highlighting
-(unless (package-installed-p 'clojure-mode-extra-font-locking)
-  (package-install 'clojure-mode))
+(use-package clojure-mode
+  :ensure t
+  :mode "\\.clj"
+  :interpreter "clojure"
+  :hook
+  (clojure-mode . rainbow-delimiters-mode)
+  (clojure-mode . enable-paredit-mode)
+  (clojure-mode . evil-paredit-mode))
   
-; Repl
-(unless (package-installed-p 'cider)
-  (package-install 'cider))
-(require 'cider)
+(use-package clojure-mode-extra-font-locking
+  :ensure t
+  :after (clojure-mode))
 
-; Enable helpful modes when editing clojure
-(add-hook 'clojure-mode-hook #'rainbow-delimiters-mode)
-(add-hook 'clojure-mode-hook #'enable-paredit-mode)
-(add-hook 'clojure-mode-hook 'evil-paredit-mode)
+(use-package cider :ensure t :after clojure-mode)
 
 #+END_SRC
 
 ** Elixir Support
    # TODO Properly configure alchemist
 #+BEGIN_SRC emacs-lisp
-(require 'elixir-mode)
-;; Create a buffer-local hook to run elixir-format on save, only when we enable elixir-mode.
-;;(add-hook 'elixir-mode-hook
-  ;;(lambda () (add-hook 'before-save-hook 'elixir-format nil t)))
-;; Elixir lang support
-(unless (package-installed-p 'alchemist)
-  (package-install 'alchemist))
-(require 'alchemist)
+(use-package elixir-mode 
+  :ensure t
+  :mode 
+  "\\.ex"
+  "\\.exs"
+  :interpreter "elixir"
+  ;; Create a buffer-local hook to run elixir-format on save, only when we enable elixir-mode.
+  ;;(add-hook 'elixir-mode-hook
+    ;;(lambda () (add-hook 'before-save-hook 'elixir-format nil t)))
+  )
+  
+(use-package alchemist 
+  :ensure t
+  :after elixir-mode)
 #+END_SRC
 
 
