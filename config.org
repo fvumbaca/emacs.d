@@ -346,4 +346,19 @@ OR TreeMacs...
   :after elixir-mode)
 #+END_SRC
 
+** YAML
+   For editing yaml.
+#+BEGIN_SRC emacs-lisp
+(use-package yaml-mode
+  :mode
+  "\\.yaml"
+  "\\.yml")
+#+END_SRC
 
+** Dockerfiles
+   Dockerfile support.
+#+BEGIN_SRC emacs-lisp
+(use-package dockerfile-mode
+  :mode
+  "^Dockerfile$")
+#+END_SRC
