@@ -52,6 +52,7 @@ Configure use-package
   (evil-leader/set-key
     "f" `find-file
     "b" 'switch-to-buffer
+    "B" 'buffer-menu-other-window
     "g" 'magit-status
     "q" 'delete-window
     "j" 'windmove-down
@@ -361,4 +362,18 @@ OR TreeMacs...
 (use-package dockerfile-mode
   :mode
   "^Dockerfile$")
+#+END_SRC
+
+* Kubernetes
+  Because kubernetes can be controlled from emacs too...
+  
+#+BEGIN_SRC emacs-lisp
+(use-package kubernetes ; use M-x kubernetes-overview to invoke
+  :disabled ; Not sure if i want to use this yet...
+  :ensure t
+  :commands (kubernetes-overview))
+
+(use-package kubernetes-evil
+  :ensure t
+  :after kubernetes)
 #+END_SRC
