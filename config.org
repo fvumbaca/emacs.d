@@ -29,51 +29,54 @@ Configure use-package
 * Evil Mode
   The dark side is the best side :smile:.
 #+BEGIN_SRC emacs-lisp
-(use-package evil
-  :ensure t
-  :demand t
-  :defer .1
-  :after (evil-leader)
-  :init
-  (setq evil-default-cursor t)
-  :config
-  (evil-mode t)
-  (with-eval-after-load 'evil-maps)
-  ; Disable evil mode RET here to make org links easier to nav
-  (define-key evil-motion-state-map (kbd "RET") nil)
-  (message "Loading evil-mode...done"))
+  (use-package evil
+    :ensure t
+    :demand t
+    :defer .1
+    :after (evil-leader)
+    :init
+    (setq evil-default-cursor t)
+    :config
+    (evil-mode t)
+    (with-eval-after-load 'evil-maps)
+    ; Disable evil mode RET here to make org links easier to nav
+    (define-key evil-motion-state-map (kbd "RET") nil)
+    (message "Loading evil-mode...done"))
 
-(use-package evil-leader
-  :init
-  (global-evil-leader-mode)
-  :ensure t
-  :config
-  (evil-leader/set-leader "SPC")
-  (evil-leader/set-key
-    "f" `find-file
-    "b" 'switch-to-buffer
-    "B" 'buffer-menu-other-window
-    "g" 'magit-status
-    "q" 'delete-window
-    "j" 'windmove-down
-    "k" 'windmove-up
-    "h" 'windmove-left
-    "l" 'windmove-right
-    "J" (lambda () (interactive) (split-window-vertically) (windmove-down))
-    "K" (lambda () (interactive) (split-window-vertically))
-    "H" (lambda () (interactive) (split-window-horizontally))
-    "L" (lambda () (interactive) (split-window-horizontally) (windmove-right))
-    "p" `projectile-command-map
-    "a" `org-agenda
-    "n" (lambda () (interactive) (find-file "~/notes/index.org"))
-    "," (lambda () (interactive) (find-file "~/.emacs.d/config.org"))
-    "W" 'save-buffer)
-  (evil-leader/set-key-for-mode 'org-mode
-    "c" 'org-toggle-checkbox))
+  (use-package evil-leader
+    :init
+    (global-evil-leader-mode)
+    :ensure t
+    :config
+    (evil-leader/set-leader "SPC")
+    (evil-leader/set-key
+      "f" `find-file
+      "b" 'switch-to-buffer
+      "B" 'buffer-menu-other-window
+      "w" 'kill-this-buffer
+      "q" 'delete-window
+      "Q" 'kill-buffer-and-window
+      "g" 'magit-status
+      "j" 'windmove-down
+      "k" 'windmove-up
+      "h" 'windmove-left
+      "l" 'windmove-right
+      "J" (lambda () (interactive) (split-window-vertically) (windmove-down))
+      "K" (lambda () (interactive) (split-window-vertically))
+      "H" (lambda () (interactive) (split-window-horizontally))
+      "L" (lambda () (interactive) (split-window-horizontally) (windmove-right))
+      "p" `projectile-command-map
+      "a" `org-agenda
+      "n" 'next-buffer
+      "N" 'previous-buffer
+      "." (lambda () (interactive) (find-file "~/notes/index.org"))
+      "," (lambda () (interactive) (find-file "~/.emacs.d/config.org")))
+    (evil-leader/set-key-for-mode 'org-mode
+      "c" 'org-toggle-checkbox))
 
-(use-package evil-magit
-  :demand t
-  :after (magit evil))
+  (use-package evil-magit
+    :demand t
+    :after (magit evil))
 
 #+END_SRC
 
@@ -362,6 +365,23 @@ OR TreeMacs...
 (use-package dockerfile-mode
   :mode
   "^Dockerfile$")
+#+END_SRC
+** Markdown
+#+BEGIN_SRC emacs-lisp
+(use-package markdown-mode
+  :ensure t
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
+#+END_SRC
+** Golang
+#+BEGIN_SRC emacs-lisp
+(use-package go-mode
+  :ensure t
+  :mode
+  "\\.go")
 #+END_SRC
 
 * Kubernetes
