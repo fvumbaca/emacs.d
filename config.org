@@ -71,6 +71,13 @@ Configure use-package
       "N" 'previous-buffer
       "." (lambda () (interactive) (find-file "~/notes/index.org"))
       "," (lambda () (interactive) (find-file "~/.emacs.d/config.org")))
+      
+    (evil-leader/set-key-for-mode 'elixir-mode
+      "y" (lambda() (interactive) (alchemist-project-toggle-file-and-tests))
+      "t" (lambda() (interactive) (alchemist-mix--test-file (buffer-file-name)))
+      ;"t" (lambda() (interactive) (alchemist-mix-test-this-buffer))
+      "T" (lambda() (interactive) (alchemist-mix-test)))
+      
     (evil-leader/set-key-for-mode 'org-mode
       "c" 'org-toggle-checkbox))
 
@@ -343,7 +350,7 @@ OR TreeMacs...
   ;; Create a buffer-local hook to run elixir-format on save, only when we enable elixir-mode.
   ;;(add-hook 'elixir-mode-hook
     ;;(lambda () (add-hook 'before-save-hook 'elixir-format nil t)))
-  )
+)
   
 (use-package alchemist 
   :ensure t
