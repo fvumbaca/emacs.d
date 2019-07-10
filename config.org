@@ -56,6 +56,8 @@ Configure use-package
       "w" 'kill-this-buffer
       "q" 'delete-window
       "Q" 'kill-buffer-and-window
+      ;; "d" 'neotree-toggle
+      "d" 'neotree-project-dir
       "g" 'magit-status
       "j" 'windmove-down
       "k" 'windmove-up
@@ -65,21 +67,21 @@ Configure use-package
       "K" (lambda () (interactive) (split-window-vertically))
       "H" (lambda () (interactive) (split-window-horizontally))
       "L" (lambda () (interactive) (split-window-horizontally) (windmove-right))
-      "p" `projectile-command-map
-      "a" `org-agenda
+      "p" 'projectile-command-map
+      "a" 'org-agenda
       "n" 'next-buffer
       "N" 'previous-buffer
       "." (lambda () (interactive) (find-file "~/notes/index.org"))
       "," (lambda () (interactive) (find-file "~/.emacs.d/config.org")))
-      
+
     (evil-leader/set-key-for-mode 'elixir-mode
-      "y" (lambda() (interactive) (alchemist-project-toggle-file-and-tests))
-      "t" (lambda() (interactive) (alchemist-mix--test-file (buffer-file-name)))
-      ;"t" (lambda() (interactive) (alchemist-mix-test-this-buffer))
-      "T" (lambda() (interactive) (alchemist-mix-test)))
-      
+      "SPC y" (lambda() (interactive) (alchemist-project-toggle-file-and-tests))
+      "SPC Y" (lambda() (interactive) (alchemist-mix--test-file (buffer-file-name)))
+      "SPC t" (lambda() (interactive) (alchemist-mix-rerun-last-test))
+      "SPC T" (lambda() (interactive) (alchemist-mix-test)))
+
     (evil-leader/set-key-for-mode 'org-mode
-      "c" 'org-toggle-checkbox))
+      "SPC c" 'org-toggle-checkbox))
 
   (use-package evil-magit
     :demand t
@@ -292,6 +294,50 @@ OR TreeMacs...
   (global-set-key (kbd "M-o") 'ace-window))
 #+END_SRC
 
+** NeoTree
+#+BEGIN_SRC emacs-lisp
+(use-package all-the-icons
+  :if window-system
+  :ensure t
+  :demand t
+  :defer .1
+  :config
+  (when (not (member "all-the-icons" (font-family-list)))
+    (all-the-icons-install-fonts t)))
+    
+(defun neotree-project-dir ()
+  "Open NeoTree using the git root."
+  (interactive)
+  (let ((project-dir (projectile-project-root))
+        (file-name (buffer-file-name)))
+    (if project-dir
+        (progn
+        (neotree-dir project-dir)
+        (neotree-find file-name))
+    (message "Could not find git project root."))))
+
+(use-package neotree
+  :ensure t
+  :after all-the-icons
+  :config
+  (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
+  (add-hook 'neotree-mode-hook
+    (lambda ()
+      (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)
+      (define-key evil-normal-state-local-map (kbd "TAB") 'neotree-enter)
+      (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
+      (define-key evil-normal-state-local-map (kbd "I") 'neotree-hidden-file-toggle)
+      (define-key evil-normal-state-local-map (kbd "z") 'neotree-stretch-toggle)
+      (define-key evil-normal-state-local-map (kbd "R") 'neotree-refresh)
+      (define-key evil-normal-state-local-map (kbd "m") 'neotree-rename-node)
+      (define-key evil-normal-state-local-map (kbd "c") 'neotree-create-node)
+      (define-key evil-normal-state-local-map (kbd "d") 'neotree-delete-node)
+
+      (define-key evil-normal-state-local-map (kbd "s") 'neotree-enter-vertical-split)
+      (define-key evil-normal-state-local-map (kbd "S") 'neotree-enter-horizontal-split))))
+
+#+END_SRC
+
 * Language Stuff
 ** General Stuff
 #+BEGIN_SRC emacs-lisp
@@ -341,20 +387,24 @@ OR TreeMacs...
 ** Elixir Support
    # TODO Properly configure alchemist
 #+BEGIN_SRC emacs-lisp
-(use-package elixir-mode 
-  :ensure t
-  :mode 
-  "\\.ex"
-  "\\.exs"
-  :interpreter "elixir"
-  ;; Create a buffer-local hook to run elixir-format on save, only when we enable elixir-mode.
-  ;;(add-hook 'elixir-mode-hook
-    ;;(lambda () (add-hook 'before-save-hook 'elixir-format nil t)))
-)
+  (use-package elixir-mode 
+    :ensure t
+    :mode 
+    (("\\.ex" . elixir-mode)
+    ("\\.exs" . elixir-mode))
+    :interpreter "elixir"
+    ;; Create a buffer-local hook to run elixir-format on save, only when we enable elixir-mode.
+    ;;(add-hook 'elixir-mode-hook
+      ;;(lambda () (add-hook 'before-save-hook 'elixir-format nil t)))
+  )
   
-(use-package alchemist 
-  :ensure t
-  :after elixir-mode)
+  (use-package alchemist 
+    :ensure t
+    :hook
+    (elixir-mode . alchemist-mode)
+    ;:config
+    ;(setq alchemist-test-display-compilation-output f)
+)
 #+END_SRC
 
 ** YAML
