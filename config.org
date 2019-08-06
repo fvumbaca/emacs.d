@@ -357,6 +357,11 @@ OR TreeMacs...
   :diminish company-mode) 
 #+END_SRC
 
+** Rest Client
+#+BEGIN_SRC emacs-lisp
+(use-package restclient
+  :ensure t)
+#+END_SRC
 * Language Stuff
 ** General Stuff
 #+BEGIN_SRC emacs-lisp
