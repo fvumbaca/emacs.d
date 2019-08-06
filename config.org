@@ -118,7 +118,7 @@ Add files to be read by org-agenda
 
 #+BEGIN_SRC emacs-lisp
 
-(setq org-agenda-files (list "~/notes/agenda.org"))
+(setq org-agenda-files (list "~/notes/agenda.org" "~/notes/index.org"))
 
 #+END_SRC
 
